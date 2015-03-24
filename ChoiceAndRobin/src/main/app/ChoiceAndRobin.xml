@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+       <sub-flow name="02_new_httpSub_Flow" doc:name="02_new_httpSub_Flow">
+        <round-robin doc:name="Round Robin">
+        	<processor-chain>
+        		<set-variable variableName="language" value="English" doc:name="Set Language to English"/>
+        		<set-payload value="Hello!" doc:name="Reply in English"/>
+        	</processor-chain>
+         	<processor-chain>
+				<set-variable variableName="language" value="Telugu" doc:name="Set Language to Telugu"/>
+        		<set-payload value="Hello Telugu!" doc:name="Reply in Telugu"/>
+        	</processor-chain>
+        	<processor-chain>
+        		<set-variable variableName="language" value="Hindi" doc:name="Set Language to Hindi"/>
+        		<set-payload value="Hello Hindi!" doc:name="Reply in Hindi"/>
+        	</processor-chain>
+        </round-robin>
+    </sub-flow>
+    <flow name="02_new_httpFlow" doc:name="02_new_httpFlow">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="Hello" doc:name="HTTP"/>
+        <expression-filter expression="#[message.inboundProperties.'http.query.params'.lang != 'Naveen']" doc:name="Expression"/>
+        <set-variable variableName="language" value="#[message.inboundProperties.'http.query.params'.lang]" doc:name="Variable"/>
+        <logger message="Variable value is #[flowVars.language]" level="INFO" doc:name="Logger"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.language == 'French']">
+                <set-payload value="Bonjour!" doc:name="Reply in French"/>
+            </when>
+            <when expression="#[flowVars.language == 'Spanish']">
+                <set-payload value="Hola!" doc:name="Reply in Spanish"/>
+            </when>
+            <otherwise>
+                <flow-ref name="02_new_httpSub_Flow" doc:name="Flow Reference"/>
+            </otherwise>
+        </choice>
+        <logger message="The reply #[payload] means &quot;Hello&quot; in #[flowVars.language]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
