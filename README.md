@@ -1,2 +1,2 @@
 # SampleChoiceAndRoundRobin
-Sample Choice And Round Robin Demonstration
+Sample Choice And Round Robin Example Demonstration
